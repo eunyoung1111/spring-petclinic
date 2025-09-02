@@ -4,18 +4,18 @@ pipeline {
   tools {
     maven "M3"
     jdk "JDK17"
-        }
+  }
 
   stages{
-    stage('Git Clone'){ 
+    stage('Git Clone'){
       steps {
-        git url: 'http://github.com/sjh4616/spring-petclinic.git', branch: 'main'
-            }
-         }
+        git url: 'https://github.com/sjh4616/spring-petclinic.git', branch: 'main'
+      }
+    }
     stage('Maven Build'){
-            steps {
-              sh 'mvn -Dmaven.test.failure.ignore=true clean pacakge'
-        }
-}
-}
+      steps {
+        sh 'mvn -Dmaven.test.failure.ignore=true clean package'
+      }
+    }
+  }
 }
