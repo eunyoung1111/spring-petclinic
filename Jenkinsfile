@@ -41,11 +41,10 @@ pipeline {
         sh 'docker push eunyoung11/spring-petclinic:latest'
       }
     }
-    
     stage('Docker Image Remove') {
       sh 'docker rmi eunyoung11/spring-petclinic:$BUILD_NUMBER eunyoung11/spring-petclinic:latest'
     }
-    
+  }
     stage('Publish Over SSH') {
       sshPublisher(publishers: [sshPublisherDesc(configName: 'Target',
       transfers: [sshTransfer(cleanRemote: false,
@@ -65,7 +64,9 @@ pipeline {
       removePrefix: 'target',
       sourceFiles: '')],
       usePromotionTimestamp: false,
-      useWorkspaceInPromotion: false, verbose: false)])
+      useWorkspaceInPromotion: false,
+      verbose: false)])
     }
   }
+}
 }
