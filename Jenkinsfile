@@ -6,8 +6,8 @@ pipeline {
     jdk "JDK"
   }
 
-  envirnoment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerCredentials')
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerCredentials') 
   }
 
   stages{
