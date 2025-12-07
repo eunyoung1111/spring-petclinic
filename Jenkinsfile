@@ -9,7 +9,7 @@ pipeline {
 
         stage('Clone') {
             steps {
-                git url: 'https://github.com/너계정/spring-petclinic.git', branch: 'main'
+                git url: 'https://github.com/eunyoung1111/spring-petclinic.git', branch: 'main'
             }
         }
 
@@ -22,7 +22,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 sh """
-                docker build -t 너도커ID/petclinic:latest .
+                docker build -t eunyoung11/petclinic:latest .
                 echo "$DOCKERHUB_PSW" | docker login -u "$DOCKERHUB_USR" --password-stdin
                 docker push 너도커ID/petclinic:latest
                 """
