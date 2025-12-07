@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB = credentials('dockerhub')
+        DOCKERHUB = credentials('dockerhub')   // DockerHub Credentials
     }
 
     stages {
@@ -22,9 +22,9 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 sh """
-                docker build -t eunyoung11/petclinic:latest .
+                docker build -t eunyoung1111/petclinic:latest .
                 echo "$DOCKERHUB_PSW" | docker login -u "$DOCKERHUB_USR" --password-stdin
-                docker push 너도커ID/petclinic:latest
+                docker push eunyoung1111/petclinic:latest
                 """
             }
         }
