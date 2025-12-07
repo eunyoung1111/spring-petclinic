@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: petclinic
-          image: eunyoung/petclinic:latest
+          image: eunyoung1111/petclinic:latest
           ports:
             - containerPort: 8080
