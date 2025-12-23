@@ -1,0 +1,21 @@
+version: 0.0
+os: Linux
+files:
+  - source: /
+    destination: /home/ubuntu
+    overwrite: yes
+file_exists_behavior: OVERWRITE
+permissions:
+  - object: /home/ubuntu
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+hooks:
+  ApplicationStop:
+    - location: script/kill_process.sh
+      time: 100
+      runas: ubuntu
+  ApplicationStart:
+    - location: script/start_process.sh
+      time: 300
+      runas: ubuntu
