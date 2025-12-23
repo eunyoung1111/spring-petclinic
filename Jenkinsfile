@@ -6,9 +6,8 @@ pipeline {
     jdk   "JDK21"
   }
 
-  environment {
-    // 공통 변수로 설정해두면 관리하기 훨씬 편합니다.
-    DOCKER_IMAGE = "eunyoung11/springpetclinic" // 도커허브 (11)
+  environment {    
+    DOCKER_IMAGE = "eunyoung11/springpetclinic" 
     GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git" // 깃허브 (1111)
     
     DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
