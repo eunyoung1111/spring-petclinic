@@ -8,17 +8,16 @@ pipeline {
 
   environment {    
     DOCKER_IMAGE = "eunyoung11/springpetclinic" 
-    GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git" // 깃허브 (1111)
+    GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git"
     
     DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
-    AWS_CREDENTIALS_NAMES = credentials('AWSCredentials')
-    GIT_CREDENTIALS = credentials('GitCredentials')
+    AWS_CREDENTIALS_NAMES = credentials('AWSCredentials') // NAME으로 통일
+    REGION = "ap-northeast-2" // : 대신 = 사용
   }
 
   stages {
     stage('Git Clone') {
       steps {
-        // 1111 계정 사용
         git branch: 'main', 
             credentialsId: 'GitCredentials', 
             url: "${env.GITHUB_URL}"
@@ -37,7 +36,6 @@ pipeline {
         echo 'Docker Image Build'        
         dir("${env.WORKSPACE}") {
           sh """
-          # 빌드할 때 도커허브(11) 계정명 사용
           docker build -t spring-petclinic:${BUILD_NUMBER} .
           docker tag spring-petclinic:${BUILD_NUMBER} ${env.DOCKER_IMAGE}:latest
           """
@@ -49,7 +47,6 @@ pipeline {
       steps {
         echo 'Docker Image Push'
         dir("${env.WORKSPACE}") {
-          // --password-stdin (하이픈 2개)로 수정
           sh """
           echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
           docker push ${env.DOCKER_IMAGE}:latest
@@ -64,11 +61,26 @@ pipeline {
         echo 'Docker Image Remove'
         dir ("${env.WORKSPACE}") {
           sh """
-          # 로컬에 남은 이미지들 삭제
           docker rmi ${env.DOCKER_IMAGE}:latest
           docker rmi spring-petclinic:${BUILD_NUMBER}
           """
         }
+      }
+    }
+
+    stage('Upload S3') {
+      steps {
+        echo 'Upload S3'
+        dir ("${env.WORKSPACE}") {
+          // appspec.yml 오타 수정
+          sh 'zip -r script.zip ./script appspec.yml'
+          
+          // withAWS 블록 { } 추가
+          withAWS(region: "${env.REGION}", credentials: "${env.AWS_CREDENTIALS_NAMES}") {
+            s3Upload(file: "script.zip", bucket: "user01-codedeploy-bucket")
+          }
+        }
+        sh 'rm -rf script.zip'
       }
     }
   } // stages 끝
