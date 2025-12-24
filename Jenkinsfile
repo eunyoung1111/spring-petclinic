@@ -11,8 +11,8 @@ pipeline {
     GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git"
     
     DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
-    AWS_CREDENTIALS_NAMES = credentials('ASWCredentials') // NAME으로 통일
-    REGION = "ap-northeast-2" // : 대신 = 사용
+    AWS_CREDENTIALS_NAMES = credentials('ASWCredentials')
+    REGION = "ap-northeast-2"
   }
 
   stages {
@@ -83,7 +83,16 @@ pipeline {
 
     stage('CodeDeploy Deployment') {
       steps {
-        echo 'CodeDeploy Deployment'
+        echo 'create CodeDeploy group'
+        sh """
+          aws deploy create-deployment-group \
+          --application-name user01-spring-petclinic \
+          --auto-scaling-groups USER01-WAS \
+          --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
+          --service-role-arn arn:aws:iam::491085389788:role/user01-code-deploy-service-role
+          """
+       
+        echo 'CodeDeploy Workload'
         sh """
           aws deploy create-deployment --application-name user01-spring-petclinic \
           --deployment-config-name CodeDeployDefault.OneAtATime \
