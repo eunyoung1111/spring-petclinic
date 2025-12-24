@@ -80,5 +80,18 @@ pipeline {
         sh 'rm -rf script.zip'
       }
     }
+
+    stage('CodeDeploy Deployment') {
+      steps {
+        echo 'CodeDeploy Deployment'
+        sh """
+          aws deploy create-deployment --application-name user01-spring-petclinic \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
+          --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=script.zip
+          """
+          sleep(10) // sleep10s
+      }
+      
   } // stages 끝
 } // pipeline 끝
