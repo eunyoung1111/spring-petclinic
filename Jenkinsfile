@@ -11,7 +11,7 @@ pipeline {
     GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git"
     
     DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
-    AWS_CREDENTIALS_NAMES = credentials('AWSCredentials') // NAME으로 통일
+    AWS_CREDENTIALS_NAMES = credentials('ASWCredentials') // NAME으로 통일
     REGION = "ap-northeast-2" // : 대신 = 사용
   }
 
