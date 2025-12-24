@@ -72,11 +72,8 @@ pipeline {
       steps {
         echo 'Upload S3'
         dir ("${env.WORKSPACE}") {
-          // appspec.yml 오타 수정
           sh 'zip -r script.zip ./script appspec.yml'
-          
-          // withAWS 블록 { } 추가
-          withAWS(region: "${env.REGION}", credentials: "${env.AWS_CREDENTIALS_NAMES}") {
+          withAWS(region: "${env.REGION}", credentials: 'AWS_CREDENTIALS_NAMES') {
             s3Upload(file: "script.zip", bucket: "user01-codedeploy-bucket")
           }
         }
