@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/ubuntu/script
-docker compose down || true
+#cd /home/ubuntu/script
+#docker compose down || true
 
-# docker compose -f /home/ubuntu/script/docker-compose.yml down || true
+docker compose -f /home/ubuntu/script/docker-compose.yml down || true
