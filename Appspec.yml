@@ -16,6 +16,6 @@ hooks:
       time: 100
       runas: ubuntu
   ApplicationStart:
-    - location: script/start_process.sh
+    - location: script/run_process.sh
       time: 300
       runas: ubuntu
