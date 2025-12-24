@@ -92,6 +92,7 @@ pipeline {
           """
           sleep(10) // sleep10s
       }
+    }
       
   } // stages 끝
 } // pipeline 끝
