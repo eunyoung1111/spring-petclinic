@@ -91,15 +91,26 @@ pipeline {
           --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
           --service-role-arn arn:aws:iam::491085389788:role/user01-code-deploy-service-role
           """
-       
-        echo 'CodeDeploy Workload'
-        sh """
+
+        withAWS(region: "ap-northeast-2", credentials:'AWSCredentials') {
+          echo 'CodeDeploy Workload'
+          sh """
           aws deploy create-deployment --application-name user01-spring-petclinic \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
-          --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=script.zip
+          --s3-location bucket=project01-codedeploy-bucket,bundleType=zip,key=script.zip
           """
-          sleep(10) // sleep10s
+        }
+        sleep(10)
+        
+        // echo 'CodeDeploy Workload'
+        // sh """
+        //   aws deploy create-deployment --application-name user01-spring-petclinic \
+        //   --deployment-config-name CodeDeployDefault.OneAtATime \
+        //   --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
+        //   --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=script.zip
+        //   """
+        //   sleep(10) // sleep10s
       }
     }
       
