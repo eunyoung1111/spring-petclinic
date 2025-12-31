@@ -83,26 +83,25 @@ pipeline {
 
     stage('CodeDeploy Deployment') {
       steps {
-        echo 'create CodeDeploy group'
-        sh """
+        withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
+          echo 'create CodeDeploy group'
+          sh """
           aws deploy create-deployment-group \
-          --application-name user01-spring-petclinic \
-          --auto-scaling-groups USER01-WAS \
-          --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
-          --service-role-arn arn:aws:iam::491085389788:role/user01-code-deploy-service-role
+          --application-name project01-spring-petclinic \
+          --auto-scaling-groups USER01-WAS \ 
+          --deployment-group-name project01-spring-petclinic-${BUILD_NUMBER} \
+          --service-role-arn arn:aws:iam::491085389788:role/project01-code-deploy-service-role
           """
 
-        withAWS(region: "ap-northeast-2", credentials:'AWSCredentials') {
           echo 'CodeDeploy Workload'
           sh """
-          aws deploy create-deployment --application-name user01-spring-petclinic \
+          aws deploy create-deployment --application-name project01-spring-petclinic \
           --deployment-config-name CodeDeployDefault.OneAtATime \
-          --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
+          --deployment-group-name project01-spring-petclinic-${BUILD_NUMBER} \
           --s3-location bucket=project01-codedeploy-bucket,bundleType=zip,key=script.zip
           """
         }
         sleep(10)
-        
       }
     }
       
