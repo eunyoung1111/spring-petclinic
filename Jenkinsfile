@@ -10,7 +10,7 @@ pipeline {
     DOCKER_IMAGE = "eunyoung11/springpetclinic" 
     GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git"
     
-    DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
+    DOCKERHUB_CREDENTIALS = credentials('DockerCredential')
     AWS_CREDENTIALS_NAMES = credentials('AWSCredentials')
     REGION = "ap-northeast-2"
   }
