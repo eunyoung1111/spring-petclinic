@@ -98,7 +98,7 @@ pipeline {
           aws deploy create-deployment --application-name user01-spring-petclinic \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
-          --s3-location bucket=project01-codedeploy-bucket,bundleType=zip,key=script.zip
+          --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=script.zip
           """
         }
         sleep(10)
