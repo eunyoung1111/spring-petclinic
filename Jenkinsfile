@@ -74,7 +74,7 @@ pipeline {
         dir ("${env.WORKSPACE}") {
           sh 'zip -r script.zip ./script appspec.yml'
           withAWS(region: "ap-northeast-2", credentials:'AWSCredentials') {
-            s3Upload(file: "script.zip", bucket: "user01-codedeploy-bucket")
+            s3Upload(file: "script.zip", bucket: "project01-codedeploy-bucket")
           }
         }
         sh 'rm -rf script.zip'
@@ -98,19 +98,11 @@ pipeline {
           aws deploy create-deployment --application-name user01-spring-petclinic \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
-          --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=script.zip
+          --s3-location bucket=project01-codedeploy-bucket,bundleType=zip,key=script.zip
           """
         }
         sleep(10)
         
-        // echo 'CodeDeploy Workload'
-        // sh """
-        //   aws deploy create-deployment --application-name user01-spring-petclinic \
-        //   --deployment-config-name CodeDeployDefault.OneAtATime \
-        //   --deployment-group-name user01-spring-petclinic-${BUILD_NUMBER} \
-        //   --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=script.zip
-        //   """
-        //   sleep(10) // sleep10s
       }
     }
       
