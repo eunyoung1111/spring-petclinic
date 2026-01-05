@@ -88,7 +88,7 @@ pipeline {
           sh """
           aws deploy create-deployment-group \
           --application-name project01-spring-petclinic \
-          --auto-scaling-groups USER01-WAS \
+          --auto-scaling-groups project01-was \
           --deployment-group-name project01-spring-petclinic-${BUILD_NUMBER} \
           --service-role-arn arn:aws:iam::491085389788:role/project01-code-deploy-service-role
           """
