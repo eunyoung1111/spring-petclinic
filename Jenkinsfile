@@ -27,7 +27,7 @@ pipeline {
     stage('Maven Build') {
       steps {        
         echo "Maven Build"
-        sh 'mvn -Dmaven.test.failure.ignore=true clean package'
+        sh 'mvn clean package -DskipTests'
       }
     }
 
@@ -36,8 +36,8 @@ pipeline {
         echo 'Docker Image Build'        
         dir("${env.WORKSPACE}") {
           sh """
-          docker build -t spring-petclinic:${BUILD_NUMBER} .
-          docker tag spring-petclinic:${BUILD_NUMBER} ${env.DOCKER_IMAGE}:latest
+          docker build -t ${env.DOCKER_IMAGE}:${BUILD_NUMBER} .
+          docker tag ${env.DOCKER_IMAGE}:${BUILD_NUMBER} ${env.DOCKER_IMAGE}:latest
           """
         }
       }
@@ -61,8 +61,8 @@ pipeline {
         echo 'Docker Image Remove'
         dir ("${env.WORKSPACE}") {
           sh """
-          docker rmi ${env.DOCKER_IMAGE}:latest
-          docker rmi spring-petclinic:${BUILD_NUMBER}
+          docker rmi ${env.DOCKER_IMAGE}:${BUILD_NUMBER} || true
+          docker rmi ${env.DOCKER_IMAGE}:latest || true
           """
         }
       }
@@ -73,7 +73,7 @@ pipeline {
         echo 'Upload S3'
         dir ("${env.WORKSPACE}") {
           sh 'zip -r script.zip ./script appspec.yml'
-          withAWS(region: "ap-northeast-2", credentials:'AWSCredentials') {
+          withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
             s3Upload(file: "script.zip", bucket: "project01-codedeploy-bucket")
           }
         }
