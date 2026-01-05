@@ -13,9 +13,9 @@ permissions:
 hooks:
   ApplicationStop:
     - location: script/kill_process.sh
-      time: 100
-      runas: ubuntu
+      timeout: 100
+      runas: ec2-user
   ApplicationStart:
     - location: script/run_process.sh
-      time: 300
-      runas: ubuntu
+      timeout: 300
+      runas: ec2-user
