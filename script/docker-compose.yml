@@ -10,7 +10,7 @@ services:
 
   # 애플리케이션
   spring-petclinic:
-    image: eunyoung11/spring-petclinic:latest
+    image: eunyoung11/spring-petclinic:v2
     container_name: spring-petclinic
     ports:
       - "80:8080"
