@@ -13,6 +13,6 @@ services:
     image: eunyoung11/spring-petclinic:v2
     container_name: spring-petclinic
     ports:
-      - "80:8080"
+      - "8080:8080"
     depends_on:
       - db  # DB가 뜬 후 앱 실행
