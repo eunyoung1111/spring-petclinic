@@ -10,7 +10,7 @@ services:
 
   # 애플리케이션
   spring-petclinic:
-    image: eunyoung1111/spring-petclinic:${IMAGE_TAG:-latest}
+    image: eunyoung11/springpetclinic:${IMAGE_TAG:-latest}
     container_name: spring-petclinic
     ports:
       - "8080:8080"
