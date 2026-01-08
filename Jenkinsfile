@@ -49,6 +49,7 @@ pipeline {
         dir("${env.WORKSPACE}") {
           sh """
           echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+          docker push ${env.DOCKER_IMAGE}:${env.BUILD_NUMBER}
           docker push ${env.DOCKER_IMAGE}:latest
           docker logout
           """
@@ -72,6 +73,7 @@ pipeline {
       steps {
         echo 'Upload S3'
         dir ("${env.WORKSPACE}") {
+          sh "echo 'IMAGE_TAG=${env.BUILD_NUMBER}' > ./script/.env"
           sh 'zip -r script.zip ./script appspec.yml'
           withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
             s3Upload(file: "script.zip", bucket: "project01-codedeploy-bucket")
