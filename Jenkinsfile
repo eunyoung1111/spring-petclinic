@@ -1,125 +1,110 @@
 pipeline {
-  agent any
+    agent any
 
-  tools {
-    maven "M3"
-    jdk   "JDK21"
-  }
-
-  environment {    
-    DOCKER_IMAGE = "eunyoung11/springpetclinic" 
-    GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git"
-    
-    DOCKERHUB_CREDENTIALS = credentials('DockerCredential')
-    AWS_CREDENTIALS_NAMES = credentials('AWSCredentials')
-    REGION = "ap-northeast-2"
-  }
-
-  stages {
-    stage('Git Clone') {
-      steps {
-        git branch: 'main', 
-            credentialsId: 'GitCredentials', 
-            url: "${env.GITHUB_URL}"
-      }
+    tools {
+        maven "M3"
+        jdk   "JDK21"
     }
 
-    stage('Maven Build') {
-      steps {        
-        echo "Maven Build"
-        sh 'mvn clean package -DskipTests'
-      }
+    environment {    
+        DOCKER_IMAGE = "eunyoung11/springpetclinic" 
+        GITHUB_URL = "https://github.com/eunyoung1111/spring-petclinic.git"
+        
+        DOCKERHUB_CREDENTIALS = credentials('DockerCredential')
+        AWS_CREDENTIALS_NAMES = credentials('AWSCredentials')
+        REGION = "ap-northeast-2"
     }
 
-    stage('Docker Image Build') {
-      steps {
-        echo 'Docker Image Build'        
-        dir("${env.WORKSPACE}") {
-          sh """
-          docker build -t ${env.DOCKER_IMAGE}:${BUILD_NUMBER} .
-          docker tag ${env.DOCKER_IMAGE}:${BUILD_NUMBER} ${env.DOCKER_IMAGE}:latest
-          """
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', 
+                    credentialsId: 'GitCredentials', 
+                    url: "${env.GITHUB_URL}"
+            }
         }
-      }
-    }
 
-    stage('Docker Image Push') {
-      steps {
-        echo 'Docker Image Push'
-        dir("${env.WORKSPACE}") {
-          sh """
-          echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
-          docker push ${env.DOCKER_IMAGE}:${env.BUILD_NUMBER}
-          docker push ${env.DOCKER_IMAGE}:latest
-          docker logout
-          """
+        stage('Maven Build') {
+            steps {        
+                echo "Maven Build"
+                sh 'mvn clean package -DskipTests'
+            }
         }
-      }
-    }
 
-    stage('Docker Image Remove') {
-      steps {
-        echo 'Docker Image Remove'
-        dir ("${env.WORKSPACE}") {
-          sh """
-          docker rmi ${env.DOCKER_IMAGE}:${BUILD_NUMBER} || true
-          docker rmi ${env.DOCKER_IMAGE}:latest || true
-          """
+        stage('Docker Image Build') {
+            steps {
+                echo 'Docker Image Build'        
+                dir("${env.WORKSPACE}") {
+                    sh """
+                    docker build -t ${env.DOCKER_IMAGE}:${BUILD_NUMBER} .
+                    docker tag ${env.DOCKER_IMAGE}:${BUILD_NUMBER} ${env.DOCKER_IMAGE}:latest
+                    """
+                }
+            }
         }
-      }
-    }
 
-    stage('Upload S3') {
-      steps {
-        echo 'Upload S3'
-        dir ("${env.WORKSPACE}") {
-          sh "echo 'IMAGE_TAG=${env.BUILD_NUMBER}' > ./script/.env"
-          sh 'zip -r script.zip ./script appspec.yml'
-          withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
-            s3Upload(file: "script.zip", bucket: "project01-codedeploy-bucket")
-          }
+        stage('Docker Image Push') {
+            steps {
+                echo 'Docker Image Push'
+                dir("${env.WORKSPACE}") {
+                    sh """
+                    echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                    docker push ${env.DOCKER_IMAGE}:${env.BUILD_NUMBER}
+                    docker push ${env.DOCKER_IMAGE}:latest
+                    docker logout
+                    """
+                }
+            }
         }
-        sh 'rm -rf script.zip'
-      }
-    }
 
-    stage('CodeDeploy Deployment') {
-      steps {
-        withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
-          echo 'create CodeDeploy group'
-          sh """
-          aws deploy create-deployment-group \
-          --application-name project01-spring-petclinic \
-          --auto-scaling-groups project01-was-asg \
-          --deployment-group-name project01-spring-petclinic-${BUILD_NUMBER} \
-          --service-role-arn arn:aws:iam::491085389788:role/project01-code-deploy-service-role
-          """
-
-          stage('CodeDeploy Deployment') {
-      steps {
-        withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
-          echo 'create CodeDeploy group (Skip if exists)'
-          // [수정 포인트] 배포 그룹 이름을 고정하고 || true를 붙여 멱등성을 확보합니다.
-          sh """
-          aws deploy create-deployment-group \
-          --application-name project01-spring-petclinic \
-          --auto-scaling-groups project01-was-asg \
-          --deployment-group-name project01-spring-petclinic-group \
-          --service-role-arn arn:aws:iam::491085389788:role/project01-code-deploy-service-role || true
-          """
-
-          echo 'CodeDeploy Workload'
-          // [수정 포인트] 위에서 만든 고정된 그룹 이름(project01-spring-petclinic-group)을 사용합니다.
-          sh """
-          aws deploy create-deployment --application-name project01-spring-petclinic \
-          --deployment-config-name CodeDeployDefault.OneAtATime \
-          --deployment-group-name project01-spring-petclinic-group \
-          --s3-location bucket=project01-codedeploy-bucket,bundleType=zip,key=script.zip
-          """
+        stage('Docker Image Remove') {
+            steps {
+                echo 'Docker Image Remove'
+                dir ("${env.WORKSPACE}") {
+                    sh """
+                    docker rmi ${env.DOCKER_IMAGE}:${BUILD_NUMBER} || true
+                    docker rmi ${env.DOCKER_IMAGE}:latest || true
+                    """
+                }
+            }
         }
-        sleep(10)
-      }
-    }
-      
-  } // stages 끝
+
+        stage('Upload S3') {
+            steps {
+                echo 'Upload S3'
+                dir ("${env.WORKSPACE}") {
+                    sh "echo 'IMAGE_TAG=${env.BUILD_NUMBER}' > ./script/.env"
+                    sh 'zip -r script.zip ./script appspec.yml'
+                    withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
+                        s3Upload(file: "script.zip", bucket: "project01-codedeploy-bucket")
+                    }
+                }
+                sh 'rm -rf script.zip'
+            }
+        }
+
+        stage('CodeDeploy Deployment') {
+            steps {
+                withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
+                    echo 'create CodeDeploy group (Skip if exists)'
+                    sh """
+                    aws deploy create-deployment-group \
+                    --application-name project01-spring-petclinic \
+                    --auto-scaling-groups project01-was-asg \
+                    --deployment-group-name project01-spring-petclinic-group \
+                    --service-role-arn arn:aws:iam::491085389788:role/project01-code-deploy-service-role || true
+                    """
+
+                    echo 'CodeDeploy Workload'
+                    sh """
+                    aws deploy create-deployment --application-name project01-spring-petclinic \
+                    --deployment-config-name CodeDeployDefault.OneAtATime \
+                    --deployment-group-name project01-spring-petclinic-group \
+                    --s3-location bucket=project01-codedeploy-bucket,bundleType=zip,key=script.zip
+                    """
+                }
+                sleep(10)
+            }
+        }
+    } // stages 끝
 } // pipeline 끝
