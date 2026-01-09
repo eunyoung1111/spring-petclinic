@@ -95,11 +95,25 @@ pipeline {
           --service-role-arn arn:aws:iam::491085389788:role/project01-code-deploy-service-role
           """
 
+          stage('CodeDeploy Deployment') {
+      steps {
+        withAWS(region: "${env.REGION}", credentials:'AWSCredentials') {
+          echo 'create CodeDeploy group (Skip if exists)'
+          // [수정 포인트] 배포 그룹 이름을 고정하고 || true를 붙여 멱등성을 확보합니다.
+          sh """
+          aws deploy create-deployment-group \
+          --application-name project01-spring-petclinic \
+          --auto-scaling-groups project01-was-asg \
+          --deployment-group-name project01-spring-petclinic-group \
+          --service-role-arn arn:aws:iam::491085389788:role/project01-code-deploy-service-role || true
+          """
+
           echo 'CodeDeploy Workload'
+          // [수정 포인트] 위에서 만든 고정된 그룹 이름(project01-spring-petclinic-group)을 사용합니다.
           sh """
           aws deploy create-deployment --application-name project01-spring-petclinic \
           --deployment-config-name CodeDeployDefault.OneAtATime \
-          --deployment-group-name project01-spring-petclinic-${BUILD_NUMBER} \
+          --deployment-group-name project01-spring-petclinic-group \
           --s3-location bucket=project01-codedeploy-bucket,bundleType=zip,key=script.zip
           """
         }
