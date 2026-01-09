@@ -1,20 +1,33 @@
 <!DOCTYPE html>
-
 <html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
 
 <body>
 
   <h2 th:text="#{welcome}">Welcome</h2>
-  <h2>1조 배포테스트</h2>
-  
+  <hr/>
+
+  <div class="row" style="margin-bottom: 30px;">
+    <div class="col-md-12 text-center">
+      <h3 style="color: #555;">[ 1조 배포 테스트 및 로드 밸런싱 시연 ]</h3>
+      <br/>
+      <h2 style="font-weight: bold;">
+        처리 중인 인스턴스: 
+        <span th:text="${@environment.getProperty('INSTANCE_ID')}" 
+              style="font-size: 1.5em; color: #ff6600; background-color: #fff3cd; padding: 5px 15px; border-radius: 10px; border: 2px solid #ffeeba;">
+          i-xxxxxxx
+        </span>
+      </h2>
+    </div>
+  </div>
+
   <div class="row">
-    <div class="col-md-12">
-      <img class="img-responsive" 
-     src="../static/resources/images/cat.png" 
-     th:src="@{/resources/images/cat.png}" />
+    <div class="col-md-12 text-center">
+      <img class="img-responsive center-block" 
+           src="../static/resources/images/cat.png" 
+           th:src="@{/resources/images/cat.png}" 
+           style="max-width: 400px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
     </div>
   </div>
 
 </body>
-
 </html>
