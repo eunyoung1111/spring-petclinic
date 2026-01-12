@@ -1,19 +1,19 @@
 version: '3.9'
 services:
-  # 데이터베이스 추가
+  # 1. 데이터베이스(PostgreSQL) 서비스 정의
   db:
-    image: postgres:15
+    image: postgres:15  # PostgreSQL 15 버전 이미지 사용
     environment:
-      - POSTGRES_USER=petclinic
-      - POSTGRES_PASSWORD=petclinic
-      - POSTGRES_DB=petclinic
+      - POSTGRES_USER=petclinic      # DB 접속 아이디
+      - POSTGRES_PASSWORD=petclinic  # DB 접속 비밀번호
+      - POSTGRES_DB=petclinic        # 생성할 데이터베이스 이름
 
-  # 애플리케이션
+  # 2. 메인 애플리케이션 서비스 정의
   spring-petclinic:
     image: eunyoung11/springpetclinic:${IMAGE_TAG:-latest}
     container_name: spring-petclinic
     ports:
-      - "8080:8080"
+      - "8080:8080"  # 외부(ALB)에서 8080으로 들어오는 요청을 허용
     environment:
       - SPRING_PROFILES_ACTIVE=postgres
       - INSTANCE_ID=${INSTANCE_ID}
