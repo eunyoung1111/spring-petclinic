@@ -1,15 +1,21 @@
 version: 0.0
 os: linux
+
+# 1. 파일 복사 위치 정의
 files:
-  - source: /
+  - source: /        # S3에서 가져온 압축 파일의 전체 내용
     destination: /home/ec2-user
     overwrite: yes
 file_exists_behavior: OVERWRITE
+
+# 2. 파일 권한 설정
 permissions:
   - object: /home/ec2-user
-    pattern: "**"
+    pattern: "**"    # 모든 하위 파일과 폴더에 적용
     owner: ec2-user
     group: ec2-user
+
+# 3. 배포 단계별 실행 스크립트    
 hooks:
   ApplicationStop:
     - location: script/kill_process.sh
