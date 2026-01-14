@@ -80,6 +80,7 @@ pipeline {
                     }
                 }
                 sh 'rm -rf script.zip'
+                sleep(300)
             }
         }
 
